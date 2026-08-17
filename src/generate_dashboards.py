@@ -9,8 +9,8 @@ def generate_driver_dashboard(driver_metrics_path, output_path):
     
     # Setup Figure
     fig = plt.figure(figsize=(15, 10))
-    fig.suptitle('Driver Behaviour Dashboard', fontsize=20, fontweight='bold')
-    fig.text(0.5, 0.95, 'User Question: Who shows the highest-risk driving behaviour and what behaviours contribute to the score?', ha='center', fontsize=12, style='italic')
+    fig.text(0.5, 0.96, 'Driver Behaviour Dashboard', fontsize=24, fontweight='bold', ha='center')
+    fig.text(0.5, 0.92, 'User Question: Who shows the highest-risk driving behaviour and what behaviours contribute to the score?', ha='center', fontsize=14, style='italic', color='dimgrey')
     
     # --- KPIs ---
     total_drivers = len(df)
@@ -19,9 +19,9 @@ def generate_driver_dashboard(driver_metrics_path, output_path):
     moderate = len(df[df['Risk_Classification'] == 'Moderate'])
     risky = len(df[df['Risk_Classification'] == 'Risky'])
     
-    fig.text(0.1, 0.92, f'Total Drivers: {total_drivers}', fontsize=14)
-    fig.text(0.3, 0.92, f'Safe: {safe} | Moderate: {moderate} | Risky: {risky}', fontsize=14)
-    fig.text(0.7, 0.92, f'Fleet Avg Risk Score: {avg_score:.1f}', fontsize=14, fontweight='bold')
+    fig.text(0.1, 0.87, f'Total Drivers: {total_drivers}', fontsize=14)
+    fig.text(0.3, 0.87, f'Safe: {safe} | Moderate: {moderate} | Risky: {risky}', fontsize=14)
+    fig.text(0.7, 0.87, f'Fleet Avg Risk Score: {avg_score:.1f}', fontsize=14, fontweight='bold')
     
     # --- Grid ---
     ax1 = plt.subplot(2, 2, 1)
@@ -67,10 +67,13 @@ def generate_driver_dashboard(driver_metrics_path, output_path):
     # Rename columns for space
     table_data.columns = ['ID', 'Braking', 'Accel', 'Corner', 'Speed', 'Total', 'Class']
     table = ax4.table(cellText=table_data.values, colLabels=table_data.columns, loc='center', cellLoc='center')
-    table.scale(1, 1.5)
+    table.auto_set_font_size(False)
+    table.set_fontsize(10)
+    table.scale(1, 1.8)
+    table.auto_set_column_width(col=list(range(len(table_data.columns))))
     ax4.set_title('Drill Down: Top Drivers')
     
-    plt.tight_layout(rect=[0, 0.03, 1, 0.90])
+    plt.tight_layout(rect=[0, 0.03, 1, 0.85])
     plt.savefig(output_path)
     plt.close()
     print(f"Driver Dashboard saved to {output_path}")
@@ -79,8 +82,8 @@ def generate_vehicle_dashboard(vehicle_metrics_path, output_path):
     df = pd.read_csv(vehicle_metrics_path)
     
     fig = plt.figure(figsize=(15, 10))
-    fig.suptitle('Vehicle Health Status Dashboard', fontsize=20, fontweight='bold')
-    fig.text(0.5, 0.95, 'User Question: Which vehicles require attention and is the abnormality persistent?', ha='center', fontsize=12, style='italic')
+    fig.text(0.5, 0.96, 'Vehicle Health Status Dashboard', fontsize=24, fontweight='bold', ha='center')
+    fig.text(0.5, 0.92, 'User Question: Which vehicles require attention and is the abnormality persistent?', ha='center', fontsize=14, style='italic', color='dimgrey')
     
     # --- KPIs ---
     total_vehicles = len(df)
@@ -89,9 +92,9 @@ def generate_vehicle_dashboard(vehicle_metrics_path, output_path):
     monitor = len(df[df['Health_Classification'] == 'Monitor'])
     maintenance = len(df[df['Health_Classification'] == 'Maintenance Recommended'])
     
-    fig.text(0.1, 0.92, f'Total Vehicles: {total_vehicles}', fontsize=14)
-    fig.text(0.3, 0.92, f'Healthy: {healthy} | Monitor: {monitor} | Maintenance: {maintenance}', fontsize=14)
-    fig.text(0.7, 0.92, f'Fleet Avg Health Score: {avg_score:.1f}', fontsize=14, fontweight='bold')
+    fig.text(0.1, 0.87, f'Total Vehicles: {total_vehicles}', fontsize=14)
+    fig.text(0.3, 0.87, f'Healthy: {healthy} | Monitor: {monitor} | Maintenance: {maintenance}', fontsize=14)
+    fig.text(0.7, 0.87, f'Fleet Avg Health Score: {avg_score:.1f}', fontsize=14, fontweight='bold')
     
     # --- Grid ---
     ax1 = plt.subplot(2, 2, 1)
@@ -124,10 +127,13 @@ def generate_vehicle_dashboard(vehicle_metrics_path, output_path):
     table_data = df.sort_values('Health_Risk_Score', ascending=False)[['Vehicle_ID', 'Health_Risk_Score', 'Persistence_Pct', 'Drivers_With_Anomaly', 'Health_Classification']].head(10)
     table_data['Persistence_Pct'] = table_data['Persistence_Pct'].round(1).astype(str) + '%'
     table = ax4.table(cellText=table_data.values, colLabels=['ID', 'Score', 'Persistence', 'Anomaly Drivers', 'Status'], loc='center', cellLoc='center')
-    table.scale(1, 1.5)
+    table.auto_set_font_size(False)
+    table.set_fontsize(10)
+    table.scale(1, 1.8)
+    table.auto_set_column_width(col=list(range(len(table_data.columns))))
     ax4.set_title('Drill Down: Critical Vehicles')
     
-    plt.tight_layout(rect=[0, 0.03, 1, 0.90])
+    plt.tight_layout(rect=[0, 0.03, 1, 0.85])
     plt.savefig(output_path)
     plt.close()
     print(f"Vehicle Dashboard saved to {output_path}")
