@@ -162,6 +162,22 @@ dashboard/
 
 The pipeline is designed to run without manual modification of intermediate analytical outputs.
 
+## Interactive Streamlit Deployment
+
+An interactive web dashboard is also available, providing drill-down capabilities for both Driver and Vehicle analytics.
+
+**Live Deployment URL:** `[INSERT_STREAMLIT_COMMUNITY_CLOUD_URL_HERE]`
+
+To run the Streamlit app locally:
+
+1. Ensure the analytical pipeline has been run (which populates the `outputs/` folder).
+2. Install the web dependencies: `pip install -r requirements.txt` (which now includes `streamlit` and `plotly`).
+3. Launch the app:
+   ```bash
+   streamlit run app.py
+   ```
+4. The dashboard will automatically open in your browser, running securely off the pre-computed outputs.
+
 ## Technical Report
 
 The detailed methodology, formulas, assumptions, validation, findings, limitations, and additional use cases are documented in:
