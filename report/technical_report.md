@@ -1,211 +1,228 @@
-# VexarDrive Data Scientist Intern Assessment
-## Final Technical Report
+# VEXARDRIVE TECHNOLOGIES
+## Data Scientist Intern Assessment
+### Technical Analysis Report
 
-## 1. Executive Summary
+**Driver Behaviour Risk & Vehicle Health Analytics**
 
-This project analyzes a week of telematics data (GPS + IMU) for 30 drivers and 30 vehicles across 450 trips. The primary deliverables are a data-driven **Driver Behaviour Risk Score** and a **Vehicle Health Score**. Our analysis successfully identified specific extreme events (rapid deceleration, rapid acceleration, high rotational-movement) using empirical thresholds derived from Exploratory Data Analysis (EDA). The final dashboards effectively distinguish relative behavioural risk classifications and identify vehicles exhibiting persistent abnormal sensor signatures that may warrant maintenance inspection. 
+30 Drivers
+30 Vehicles
+450 Trips
+GPS + IMU Telemetry
+
+Prepared for: VexarDrive Technologies
+Assessment: Data Scientist Intern
+
+---
+
+## Executive Summary
+
+### Objective
+This project analyzes a week of telematics data (GPS + IMU) to produce a data-driven **Driver Behaviour Risk Score** and a **Vehicle Health Score**.
+
+### Analytical Approach
+Our analysis identified specific extreme events (rapid deceleration, rapid acceleration, high rotational-movement, and high-speed exposure) using empirical thresholds derived from Exploratory Data Analysis (EDA). Because official operational bounds and speed limits were unavailable, the methodology relies on dataset-relative thresholds and exposure-normalized rates to fairly evaluate behaviour. 
+
+### Key Outputs
+
+- 30 Drivers
+- 30 Vehicles
+- 450 Trips
+- ~12,987 Telemetry Records
+
+The final dashboards successfully distinguish relative behavioural risk classifications and identify vehicles exhibiting persistent abnormal sensor signatures that may warrant maintenance inspection. 
 
 Importantly, the generated scores represent relative analytical indicators derived from telemetry and are not externally certified safety ratings or confirmed mechanical-failure diagnoses.
 
-## 2. Dataset Overview
+---
 
-- **Drivers**: 30 records
-- **Vehicles**: 30 records
-- **Trips**: 450 records (15 trips per driver)
-- **Telemetry**: ~12,987 minute-by-minute observations combining GPS coordinates, speed, and IMU data (accelerometer and gyroscope).
-- **Data Quality**: After correcting the workbook's header formatting (handling null offsets) and validating data types and relationships, no missing values or corrupt records affecting the analytical metrics were identified. 
+## Data & Analytical Architecture
 
-The analytical tables are joined using the following mapping, where `Trips.Vehicle_ID` represents the actual vehicle associated with each trip:
-- `Telemetry.Trip_ID → Trips.Trip_ID`
-- `Trips.Driver_ID → Drivers.Driver_ID`
-- `Trips.Vehicle_ID → Vehicles.Vehicle_ID`
+### Table Relationships
 
-## 3. Feature Engineering
+The analytical tables are structurally joined using the following mapping:
 
-The raw data lacked explicit orientation information for the IMU sensors and official speed limits. To ensure robustness, we utilized orientation-independent magnitudes:
+Drivers -> Trips (Driver_ID)
+Vehicles -> Trips (Vehicle_ID)
+Trips -> Telemetry (Trip_ID)
 
-**Orientation-independent acceleration magnitude**
-```text
-Accel_Magnitude = sqrt(Accel_X_g² + Accel_Y_g² + Accel_Z_g²)
-```
-This provides an orientation-independent measure of the combined accelerometer magnitude. Because the accelerometer includes gravitational and motion components and no device orientation calibration is provided, it is treated as a sensor-motion indicator rather than a direct measurement of mechanical vibration or physical force.
+`Trips.Vehicle_ID` represents the actual vehicle associated with each trip.
 
-**Orientation-independent rotational magnitude**
-```text
-Gyro_Magnitude = sqrt(Gyro_X_dps² + Gyro_Y_dps² + Gyro_Z_dps²)
-```
-This acts as an orientation-independent rotational-movement indicator.
+### Dataset Quality
+After correcting the workbook's header formatting (handling null offsets) and validating data types and relationships, no missing values or corrupt records affecting the analytical metrics were identified. 
 
-**Minute Speed Change**
-Minute-to-minute speed changes are used as behavioural acceleration/deceleration proxies. They do not represent instantaneous physical acceleration.
+---
 
-## 4. Driver Behaviour Methodology
+## Feature Engineering
 
-### 4.1 Behavioural Metrics
-Trip features were aggregated per driver and normalized into exposure-rates (events per 100 telemetry minutes) to reduce bias caused by differences in trip duration and observation volume. Metrics include:
-- Rapid Deceleration Events
-- Rapid Acceleration Events
-- High Rotational-Movement Events
-- High-Speed Exposure
+The raw data lacked explicit orientation information for the IMU sensors and official speed limits. To ensure robustness, we utilized three core engineered features:
 
-### 4.2 Driver Thresholds
+### Acceleration Magnitude
+`Accel_Magnitude = sqrt(Accel_X_g^2 + Accel_Y_g^2 + Accel_Z_g^2)`
+
+**Purpose**: Provides an orientation-independent measure of the combined accelerometer magnitude.
+**Interpretation**: Because the accelerometer includes gravitational and motion components and no device orientation calibration is provided, it is treated as a sensor-motion indicator rather than a direct measurement of mechanical vibration or physical force.
+
+### Gyroscope Magnitude
+`Gyro_Magnitude = sqrt(Gyro_X_dps^2 + Gyro_Y_dps^2 + Gyro_Z_dps^2)`
+
+**Purpose**: Acts as an orientation-independent rotational-movement indicator.
+**Interpretation**: Measures the intensity of rotational forces during cornering or swerving.
+
+### Minute Speed Change
+`Speed_Change_per_min = Speed_kmph(t) - Speed_kmph(t-1)`
+
+**Purpose**: Used to proxy acceleration and deceleration events.
+**Limitation**: Minute-to-minute speed changes are behavioural proxies. They do not represent instantaneous physical acceleration.
+
+**Important Interpretation Note:** Sensor-derived values are analytical proxies and should not be interpreted as direct mechanical measurements.
+
+---
+
+## Driver Behaviour Methodology
+
+### 1. Behavioural Metrics
+Trip features were aggregated per driver and normalized into **exposure-rates** (events per 100 telemetry minutes) to reduce bias caused by differences in trip duration and observation volume.
+
+### 2. Thresholds
 Because the assessment does not provide official operational thresholds, empirical thresholds were derived from the observed telemetry distribution. These thresholds are dataset-relative analytical thresholds rather than industry-standard safety limits:
-- Rapid deceleration threshold: `-25.50 km/h/min`
-- Rapid acceleration threshold: `+25.40 km/h/min`
-- Rotational/Cornering threshold: `7.58 dps`
+- **Rapid deceleration threshold**: -25.50 km/h/min
+- **Rapid acceleration threshold**: +25.40 km/h/min
+- **Rotational/Cornering threshold**: 7.58 dps
 
-### 4.3 Driver Score Formula
-Rates are transformed into normalized 0–100 subscores. The actual implementation caps the rate at the 95th percentile to limit excessive influence from extreme observations while preserving relative differences across drivers, and then applies min-max scaling to 100:
+### 3. High-Speed Exposure
+Because no external speed-limit information is available, we evaluate fleet-relative high-speed exposure.
+- **Source variable**: `Speed_kmph`
+- **Exact threshold**: > 40 km/h
+- **Event definition**: A telemetry minute where the speed strictly exceeds 40 km/h.
+- **Aggregation**: Total minutes spent above 40 km/h per driver.
+- **Exposure normalization**: Ratio of high-speed minutes to total driving minutes (`High_Speed_Ratio`).
 
-```text
-Score_Raw = 100 × (Rate / P95)
-Score = min(Score_Raw, 100)
-```
+### 4. P95-Relative Normalization
+Rates are transformed into normalized 0–100 subscores relative to the 95th-percentile reference value (`P95`). This limits the influence of extreme observations while preserving relative differences.
 
-The Driver Behaviour Risk Score is then calculated using the exact formula:
+`Score_Raw = 100 * (Rate / P95)`
+`Score = min(Score_Raw, 100)`
 
-```text
-Driver Risk Score =
-0.30 × Braking/Deceleration Subscore
-+ 0.30 × Acceleration Subscore
-+ 0.20 × Corner/Rotation Subscore
-+ 0.20 × Speed Behaviour Subscore
-```
+---
 
-### 4.4 Driver Classification
-The risk classification uses tertiles relative to the observed fleet and should not be interpreted as externally certified safety thresholds:
-- **Safe**: lower third of the driver-score distribution
-- **Moderate**: middle third of the driver-score distribution
-- **Risky**: upper third of the driver-score distribution
+## Driver Score & Traceability
 
-### 4.5 Driver Traceability Example
-Driver D01 displays the following unrounded components:
-- Braking = 27.427
-- Acceleration = 22.066
-- Corner = 82.961
-- Speed = 34.915
+### 5. Weighted Score
 
-```text
-Risk Score =
-(27.427 × 0.30)
-+ (22.066 × 0.30)
-+ (82.961 × 0.20)
-+ (34.915 × 0.20)
-```
-The final score is `38.42`. Note that the final score is calculated using the underlying unrounded values, though displayed metrics may be rounded for readability.
+- Braking / Deceleration: 30%
+- Acceleration: 30%
+- Corner / Rotation: 20%
+- Speed Behaviour: 20%
+- Total: 100%
 
-## 5. Vehicle Health / Maintenance Priority Methodology
+The weighted structure combines multiple behavioural dimensions while preventing any single metric from completely determining the overall classification. These are the analytical weightings selected for this assessment, not an industry-standard constraint.
+
+`RiskScore = 0.30B + 0.30A + 0.20C + 0.20S`
+*(Where B, A, C, and S are the 0-100 normalized subscores)*
+
+### Traceability Example: Driver D01
+
+**D01 — Score Traceability**
+
+- Braking: 27.427
+- Acceleration: 22.066
+- Corner: 82.961
+- Speed: 34.915
+
+`Risk Score = (27.427 * 0.30) + (22.066 * 0.30) + (82.961 * 0.20) + (34.915 * 0.20)`
+
+**Final Score = 38.42**
+**Classification = Moderate**
+
+*Note: Final score uses underlying unrounded values; displayed component values are rounded for readability.*
+
+---
+
+## Vehicle Health Methodology
 
 The objective is to identify vehicles with persistent abnormal sensor signatures that may warrant inspection.
 
-### 5.1 Vehicle Anomaly Threshold
-Trips are evaluated against the following validated threshold:
-```text
-Trip_Accel_Mag_Mean > 1.046 g
-```
-1.046 g corresponds to the 90th percentile of the fleet-level distribution of trip-level mean acceleration magnitude. Trips above this threshold exhibit unusually high average acceleration magnitude relative to the observed fleet.
+### Visual Methodology Flow
+Trip telemetry -> Trip mean acceleration magnitude -> 90th-percentile fleet threshold -> Anomalous trip -> Vehicle-level persistence -> 75th-percentile persistence threshold -> Cross-driver verification -> Maintenance Priority
 
-### 5.2 Vehicle Persistence
-Vehicle anomalies are evaluated across their entire trip history using the formula:
-```text
-Persistence (%) = Anomalous Trips / Total Trips × 100
-```
-```text
-Persistence Threshold = 13.33%
-```
-The 13.33% threshold corresponds to the 75th percentile of the observed vehicle-level anomalous-trip persistence distribution. This is a fleet-relative, dataset-derived analytical threshold and is not an industry-standard maintenance threshold.
+### Evaluated Thresholds
+- **Trip anomaly threshold**: 1.046 g
+- **Persistence threshold**: 13.33%
 
-### 5.3 Cross-Driver Verification
-The classification logic strictly applies the following rule:
-```text
-IF
-Persistence > 13.33%
-AND
-Drivers_With_Anomaly > 1
+Trips exceeding the 1.046 g threshold exhibit unusually high average acceleration magnitude relative to the observed fleet. 
 
-THEN
-Maintenance Recommended
-```
-Otherwise, a high-persistence anomaly associated with only one driver is downgraded to: **Monitor**
+### Cross-Driver Rule
+The cross-driver condition downgrades vehicles whose anomaly evidence is associated with only one driver, reducing the likelihood of attributing driver-specific behaviour to the vehicle.
 
-Requiring anomaly evidence across multiple drivers reduces the likelihood that driver-specific behaviour is incorrectly attributed to the vehicle.
+IF Persistence > 13.33% AND Drivers_With_Anomaly > 1
+    THEN Maintenance Recommended
+ELSE IF Persistence > 13.33% AND Drivers_With_Anomaly == 1
+    THEN Monitor
 
-### 5.4 Example of Cross-Driver Validation
-**Vehicle V02**
-- 16 total trips, 8 anomalous trips
-- Persistence = 50%
-- 2 drivers with anomalies
-- Persistence > 13.33%
-- Drivers with anomaly > 1
-- Classification = **Maintenance Recommended**
+These are fleet-relative, dataset-derived analytical thresholds and are not industry-standard mechanical maintenance thresholds.
 
-**Vehicle V19**
-- 16 total trips, 7 anomalous trips
-- Persistence = 43.75%
-- Anomalies associated with only 1 driver
-- Persistence > 13.33%
-- Cross-driver condition not satisfied
-- Classification = **Monitor**
+---
 
-This demonstrates that the vehicle score does not simply equate anomaly frequency with mechanical problems.
+## Vehicle Validation
 
-## 6. Validation
+### V02 / V19 Comparison
 
-**Data validation:** 
-- Row counts, table joins, and relationships were programmatically validated. 
-- Type casting prevented strings in numerical fields. 
+| Vehicle | Trips | Anomalous Trips | Persistence | Drivers with Anomaly | Classification |
+| --- | --- | --- | --- | --- | --- |
+| V02 | 16 | 8 | 50.00% | 2 | Maintenance Recommended |
+| V19 | 16 | 7 | 43.75% | 1 | Monitor |
 
-**Score validation:** 
-- Subscore domains successfully bounded between 0 and 100.
-- All driver scores properly undergo exposure normalization to negate the impact of differing trip durations.
+While V19 exhibits an anomaly persistence of 43.75% (well above the 13.33% threshold), all anomalous trips were generated by a single assigned driver. V02 satisfies both the persistence and cross-driver criteria and is therefore assigned Maintenance Recommended priority for further inspection.
 
-**Vehicle validation:**
-- Persistence and multiple-trip evidence successfully enforce that anomalies are recurring patterns and not isolated instances.
-- The cross-driver condition effectively downgrades vehicles driven solely by aggressive drivers.
+---
 
-**Dashboard validation:**
-- All numbers natively trace back to generated CSV outputs. No manually entered analytical values are present.
+## Dashboard Insights
 
-## 7. Assumptions
+### Driver Behaviour Dashboard
+![Driver Behaviour Dashboard](../dashboard/driver_dashboard.png)
 
-1. Accelerometer axis orientation is unknown.
-2. 3D accelerometer magnitude is used as an orientation-independent sensor-motion indicator.
-3. Minute-level speed differences are behavioural proxies rather than instantaneous acceleration measurements.
-4. Official speed limits are unavailable.
-5. Behavioural thresholds are empirical and dataset-relative.
-6. Vehicle anomaly thresholds are fleet-relative and dataset-derived.
-7. Cross-driver persistence reduces but does not eliminate driver-specific confounding.
-8. Risk/health scores are relative analytical indicators.
+The Driver Dashboard visualizes relative behavioural risk, allowing the evaluator to isolate drivers who show high-speed exposure but rapid deceleration versus those who drive slowly but exhibit high rotational-movement.
 
-## 8. Limitations
+### Vehicle Health Status Dashboard
+![Vehicle Health Status Dashboard](../dashboard/vehicle_dashboard.png)
 
-- **Temporal resolution**: One-minute telemetry cannot reconstruct short-duration events.
-- **Ground truth**: There are no confirmed risky-driver labels, accident outcomes, mechanical-failure labels, or maintenance failure labels. Therefore the scores are not supervised predictions or confirmed diagnoses.
-- **Context**: No speed limits, road type, weather, traffic, road gradient, or route context.
-- **Sensor orientation**: No phone mounting/orientation calibration.
-- **Vehicle diagnosis**: Sensor anomalies may have multiple causes and require inspection/maintenance data for confirmation.
+The Vehicle Dashboard identifies vehicles with persistent acceleration-magnitude anomalies and telemetry patterns that warrant maintenance inspection. The cross-driver scatter plot effectively segments vehicles that require priority inspection from those flagged merely due to driver confounding.
 
-## 9. Dashboard Insights
+---
 
-- **Driver Dashboard**: Enables visual identification of varied driving styles, isolating drivers who show high-speed exposure but rapid deceleration vs. those who drive slowly but exhibit high rotational-movement.
-- **Vehicle Dashboard**: Identifies vehicles with persistent acceleration-magnitude anomalies and telemetry patterns that warrant maintenance inspection. The cross-driver scatter plot quickly highlights these vehicles against those flagged merely due to a single assigned driver.
+## Assumptions & Limitations
 
-## 10. Additional Applications
+### Assumptions
+- Accelerometer axis orientation is unknown.
+- 3D accelerometer magnitude acts as an orientation-independent sensor-motion indicator.
+- Minute-level speed differences are behavioural proxies rather than instantaneous acceleration measurements.
+- Official speed limits are unavailable.
+- Behavioural thresholds are empirical and dataset-relative.
+- Vehicle anomaly thresholds are fleet-relative and dataset-derived.
+- Cross-driver persistence reduces but does not eliminate driver-specific confounding.
+- Risk/health scores are relative analytical indicators.
 
-- **Insurance Telematics**: Behavioural indicators could support future insurance-risk analysis after validation against accident and claims outcomes and subject to appropriate regulatory and actuarial requirements.
-- **Predictive Maintenance**: With historical maintenance, breakdown, and component-replacement labels, the telemetry features could support supervised predictive-maintenance models and time-to-failure estimation.
-- **Other Uses**: Driver coaching, Fleet safety monitoring, Route-risk analysis, Maintenance prioritization, Anomaly monitoring, Operational fleet optimization.
+### Limitations
+- Temporal resolution: One-minute telemetry cannot reconstruct short-duration events.
+- Ground truth: No ground-truth risky-driver or mechanical-failure labels are available. The scores are not supervised predictions.
+- Context: No road type, weather, traffic, road gradient, or route context.
+- Sensor orientation: No phone mounting calibration.
+- Vehicle diagnosis: Sensor anomalies may have multiple causes and require physical inspection to diagnose.
 
-## 11. Methodology Summary
+---
 
-| Component | Metric               | Method                          | Output                   |
-| --------- | -------------------- | ------------------------------- | ------------------------ |
-| Driver    | Rapid deceleration   | Empirical percentile threshold  | Exposure-normalized rate |
-| Driver    | Rapid acceleration   | Empirical percentile threshold  | Exposure-normalized rate |
-| Driver    | Rotational movement  | Empirical threshold             | Exposure-normalized rate |
-| Driver    | Speed behaviour      | Fleet-relative exposure         | Normalized score         |
-| Driver    | Overall risk         | 30/30/20/20 weighted score      | 0–100                    |
-| Vehicle   | Acceleration anomaly | 90th percentile                 | Trip anomaly flag        |
-| Vehicle   | Persistence          | Anomalous trips / total trips   | Percentage               |
-| Vehicle   | Maintenance priority | Persistence + cross-driver rule | Classification           |
+## Additional Applications
 
+| Application | Current Data | Additional Data Needed |
+| --- | --- | --- |
+| Driver Coaching | Yes | — |
+| Fleet Safety Monitoring | Yes | — |
+| Maintenance Prioritization | Yes | Maintenance outcomes for validation |
+| Predictive Maintenance | Partial | Failure/maintenance labels |
+| Insurance Risk Analysis | Potential | Claims/accident outcomes |
+
+## Conclusion
+
+**Final takeaway:** The assessment demonstrates an explainable, exposure-aware approach to extracting driver-behaviour and vehicle-maintenance signals from GPS and IMU telemetry while explicitly accounting for data limitations and driver/vehicle confounding.
+
+The robust cross-driver validation and empirical, data-derived thresholds successfully navigate the lack of ground-truth labels and official operational bounds, producing defensible and highly actionable insights for fleet safety and vehicle maintenance prioritization.
