@@ -1,0 +1,7 @@
+{
+    "hard_brake_threshold": -25.5,
+    "harsh_accel_threshold": 25.4,
+    "harsh_rot_threshold": 7.575581189337716,
+    "accel_mean_90th": 1.046290821124068,
+    "persistence_threshold": 13.333333333333334
+}

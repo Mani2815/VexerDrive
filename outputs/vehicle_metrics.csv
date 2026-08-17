@@ -1,0 +1,31 @@
+Vehicle_ID,Total_Trips,Anomalous_Trips,Total_Drivers,Accel_Mag_Std,Drivers_With_Anomaly,Persistence_Pct,Health_Risk_Score,Health_Classification,Vehicle_Type,Manufacture_Year,Odometer_KM_Start_of_Week
+V01,15,2,1,0.02212704739431463,1.0,13.333333333333334,26.67,Monitor,Two-Wheeler (Scooter/Motorcycle),2021,22820
+V02,16,8,2,0.03830370662723012,2.0,50.0,100.0,Maintenance Recommended,Two-Wheeler (Scooter/Motorcycle),2021,46601
+V03,16,2,2,0.015169449042858201,1.0,12.5,25.0,Monitor,Two-Wheeler (Scooter/Motorcycle),2022,14883
+V04,15,0,1,0.011818223376154506,0.0,0.0,0.0,Healthy,Two-Wheeler (Scooter/Motorcycle),2020,5533
+V05,15,0,1,0.012020267305537524,0.0,0.0,0.0,Healthy,Two-Wheeler (Scooter/Motorcycle),2025,2727
+V06,16,0,2,0.007717315841429345,0.0,0.0,0.0,Healthy,Two-Wheeler (Scooter/Motorcycle),2025,3065
+V07,15,0,1,0.011439751600757726,0.0,0.0,0.0,Healthy,Two-Wheeler (Scooter/Motorcycle),2021,6030
+V08,15,1,1,0.014391339813092735,1.0,6.666666666666667,13.33,Healthy,Two-Wheeler (Scooter/Motorcycle),2021,11444
+V09,17,0,3,0.009422738239232552,0.0,0.0,0.0,Healthy,Two-Wheeler (Scooter/Motorcycle),2020,14294
+V10,16,2,2,0.022067706198933727,1.0,12.5,25.0,Monitor,Two-Wheeler (Scooter/Motorcycle),2019,30162
+V11,15,1,1,0.014076666299376749,1.0,6.666666666666667,13.33,Healthy,Two-Wheeler (Scooter/Motorcycle),2020,11219
+V12,15,3,1,0.021287407672040185,1.0,20.0,40.0,Maintenance Recommended,Two-Wheeler (Scooter/Motorcycle),2020,31966
+V13,15,2,1,0.01706654150761673,1.0,13.333333333333334,26.67,Monitor,Two-Wheeler (Scooter/Motorcycle),2025,22372
+V14,16,4,2,0.02189712775786964,1.0,25.0,50.0,Monitor,Two-Wheeler (Scooter/Motorcycle),2019,5270
+V15,15,0,1,0.015889907611250666,0.0,0.0,0.0,Healthy,Two-Wheeler (Scooter/Motorcycle),2023,20041
+V16,15,0,1,0.012606689614055767,0.0,0.0,0.0,Healthy,Two-Wheeler (Scooter/Motorcycle),2023,22089
+V17,15,1,1,0.012573663308654965,1.0,6.666666666666667,13.33,Healthy,Two-Wheeler (Scooter/Motorcycle),2024,2639
+V18,15,0,1,0.01224496779128058,0.0,0.0,0.0,Healthy,Two-Wheeler (Scooter/Motorcycle),2019,9158
+V19,16,7,2,0.04782326976525647,1.0,43.75,87.5,Monitor,Two-Wheeler (Scooter/Motorcycle),2021,17247
+V20,15,0,1,0.010783762388134482,0.0,0.0,0.0,Healthy,Two-Wheeler (Scooter/Motorcycle),2023,8533
+V21,14,0,2,0.011736274093838322,0.0,0.0,0.0,Healthy,Two-Wheeler (Scooter/Motorcycle),2025,9558
+V22,15,0,1,0.010919288251093489,0.0,0.0,0.0,Healthy,Two-Wheeler (Scooter/Motorcycle),2023,11264
+V23,18,3,4,0.014678762959112454,2.0,16.666666666666664,33.33,Maintenance Recommended,Two-Wheeler (Scooter/Motorcycle),2021,17821
+V24,14,3,1,0.01586251932632686,1.0,21.428571428571427,42.86,Maintenance Recommended,Two-Wheeler (Scooter/Motorcycle),2025,22345
+V25,15,3,1,0.02231622345126487,1.0,20.0,40.0,Maintenance Recommended,Two-Wheeler (Scooter/Motorcycle),2024,26280
+V26,13,1,1,0.01562116329838128,1.0,7.6923076923076925,15.38,Monitor,Two-Wheeler (Scooter/Motorcycle),2024,22871
+V27,15,1,1,0.014333207455055598,1.0,6.666666666666667,13.33,Healthy,Two-Wheeler (Scooter/Motorcycle),2022,14098
+V28,16,1,2,0.028308131026252053,1.0,6.25,12.5,Healthy,Two-Wheeler (Scooter/Motorcycle),2023,17021
+V29,9,0,2,0.012975763825733375,0.0,0.0,0.0,Healthy,Two-Wheeler (Scooter/Motorcycle),2021,14495
+V30,13,0,1,0.011674399761268,0.0,0.0,0.0,Healthy,Two-Wheeler (Scooter/Motorcycle),2022,5127
